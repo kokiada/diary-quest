@@ -1,6 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter/material.dart';
 import '../models/user.dart';
 import '../models/quest_entry.dart';
+import '../models/skill.dart';
+import '../models/job.dart';
 import '../core/constants/parameters.dart';
 import '../repositories/user_repository.dart';
 import '../repositories/quest_repository.dart';
@@ -15,6 +18,9 @@ final userRepositoryProvider = Provider<UserRepository>((ref) {
 final questRepositoryProvider = Provider<QuestRepository>((ref) {
   return QuestRepository();
 });
+
+/// グローバルキー for dialog navigation
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 /// ユーザー状態管理Provider
 final userProvider = StateNotifierProvider<UserNotifier, UserState>((ref) {
@@ -177,8 +183,130 @@ class UserNotifier extends StateNotifier<UserState> {
 
   /// スキルとジョブの解禁チェック
   Future<void> _checkUnlocks(UserModel user) async {
-    // TODO: スキル解禁アニメーションをトリガー
-    // TODO: ジョブ解禁通知
+    final odId = _odId;
+    if (odId == null) return;
+
+    // チェックするスキルとジョブの定義
+    final allSkills = <SkillDefinition>[
+      SkillDefinition(
+        id: 'critical_thinking',
+        nameJa: '批判的思考',
+        description: '物事を多角的に分析し、本質を見極める力がついた',
+        requiredExp: {'analysis': 30, 'speed': 20},
+        category: SkillCategory.tactics,
+      ),
+      SkillDefinition(
+        id: 'fast_learner',
+        nameJa: '速習',
+        description: '新しいことを素早く習得できるようになった',
+        requiredExp: {'analysis': 50, 'speed': 30},
+        category: SkillCategory.tactics,
+      ),
+      // TODO: さらにスキルを追加
+    ];
+
+    final allJobs = <JobDefinition>[
+      JobDefinition(
+        id: 'scholar',
+        nameJa: '学者',
+        description: '知識を追求する道を選んだ。分析力がさらに向上する',
+        requiredLevel: 2,
+        requiredExp: {'analysis': 100},
+        category: JobCategory.tactics,
+      ),
+      JobDefinition(
+        id: 'strategist',
+        nameJa: '戦略家',
+        description: '戦略的な思考に長ける。全パラメータバランス型',
+        requiredLevel: 3,
+        requiredExp: {'analysis': 200, 'speed': 150, 'empathy': 100},
+        category: JobCategory.tactics,
+      ),
+      // TODO: さらにジョブを追加
+    ];
+
+    // 新しく解禁されたスキルをチェック
+    final newSkills = <SkillDefinition>[];
+    for (final skill in allSkills) {
+      if (!_isSkillUnlocked(user, skill) && _canUnlockSkill(user, skill)) {
+        newSkills.add(skill);
+      }
+    }
+
+    // 新しく解禁されたジョブをチェック
+    final newJobs = <JobDefinition>[];
+    for (final job in allJobs) {
+      if (!_isJobUnlocked(user, job) && _canUnlockJob(user, job)) {
+        newJobs.add(job);
+      }
+    }
+
+    // もし新しいスキルまたはジョブが解禁されたら
+    if (newSkills.isNotEmpty || newJobs.isNotEmpty) {
+      // UIに通知するためにグローバルナビゲーターを使用
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (navigatorKey.currentContext != null) {
+          _showUnlockDialogs(newSkills, newJobs);
+        }
+      });
+    }
+  }
+
+  /// スキルが解禁済みかチェック
+  bool _isSkillUnlocked(UserModel user, SkillDefinition skill) {
+    return user.unlockedSkills.contains(skill.id);
+  }
+
+  /// スキルの解禁条件を満たしているかチェック
+  bool _canUnlockSkill(UserModel user, SkillDefinition skill) {
+    for (final entry in skill.requiredExp.entries) {
+      final currentExp = user.parameterExp[entry.key] ?? 0;
+      if (currentExp < entry.value) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  /// ジョブが解禁済みかチェック
+  bool _isJobUnlocked(UserModel user, JobDefinition job) {
+    return user.unlockedJobs.contains(job.id);
+  }
+
+  /// ジョブの解禁条件を満たしているかチェック
+  bool _canUnlockJob(UserModel user, JobDefinition job) {
+    if (user.baseLevel < job.requiredLevel) {
+      return false;
+    }
+
+    for (final entry in job.requiredExp.entries) {
+      final currentExp = user.parameterExp[entry.key] ?? 0;
+      if (currentExp < entry.value) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  /// 解禁ダイアログを表示
+  void _showUnlockDialogs(List<SkillDefinition> newSkills, List<JobDefinition> newJobs) {
+    // スキル解禁ダイアログを表示
+    for (final skill in newSkills) {
+      showDialog(
+        context: navigatorKey.currentContext!,
+        barrierDismissible: false,
+        builder: (context) => SkillUnlockDialog(skill: skill),
+      );
+    }
+
+    // ジョブ解禁ダイアログを表示
+    for (final job in newJobs) {
+      showDialog(
+        context: navigatorKey.currentContext!,
+        barrierDismissible: false,
+        builder: (context) => JobUnlockDialog(job: job),
+      );
+    }
   }
 
   /// 連続日数を更新
