@@ -33,6 +33,14 @@ class UserRepository {
     });
   }
 
+  /// 表示名を更新
+  Future<void> updateDisplayName(String odId, String displayName) async {
+    await _usersCollection.doc(odId).update({
+      'displayName': displayName,
+      'lastActiveAt': Timestamp.now(),
+    });
+  }
+
   /// 経験値を追加
   Future<void> addExperience(
     String odId,
