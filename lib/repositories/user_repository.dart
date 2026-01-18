@@ -81,4 +81,54 @@ class UserRepository {
       return UserModel.fromFirestore(doc);
     });
   }
+
+  /// 通知設定を更新
+  Future<void> updateNotificationSettings(
+    String userId, {
+    bool? morningBuffEnabled,
+    bool? eveningReportEnabled,
+    int? morningBuffHour,
+    int? morningBuffMinute,
+    int? eveningReportHour,
+    int? eveningReportMinute,
+  }) async {
+    try {
+      final updateData = <String, dynamic>{};
+
+      if (morningBuffEnabled != null) {
+        updateData['morningBuffEnabled'] = morningBuffEnabled;
+      }
+      if (eveningReportEnabled != null) {
+        updateData['eveningReportEnabled'] = eveningReportEnabled;
+      }
+      if (morningBuffHour != null) {
+        updateData['morningBuffHour'] = morningBuffHour;
+      }
+      if (morningBuffMinute != null) {
+        updateData['morningBuffMinute'] = morningBuffMinute;
+      }
+      if (eveningReportHour != null) {
+        updateData['eveningReportHour'] = eveningReportHour;
+      }
+      if (eveningReportMinute != null) {
+        updateData['eveningReportMinute'] = eveningReportMinute;
+      }
+
+      if (updateData.isNotEmpty) {
+        updateData['lastActiveAt'] = FieldValue.serverTimestamp();
+        await _usersCollection.doc(userId).update(updateData);
+      }
+    } catch (e) {
+      throw UserRepositoryException('Failed to update notification settings: $e');
+    }
+  }
+}
+
+/// ユーザーリポジトリ例外
+class UserRepositoryException implements Exception {
+  final String message;
+  UserRepositoryException(this.message);
+
+  @override
+  String toString() => 'UserRepositoryException: $message';
 }

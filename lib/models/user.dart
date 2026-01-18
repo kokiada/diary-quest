@@ -17,6 +17,14 @@ class UserModel {
   final DateTime createdAt;
   final DateTime lastActiveAt;
 
+  // 通知設定
+  final bool morningBuffEnabled;
+  final bool eveningReportEnabled;
+  final int morningBuffHour;
+  final int morningBuffMinute;
+  final int eveningReportHour;
+  final int eveningReportMinute;
+
   UserModel({
     required this.id,
     required this.email,
@@ -31,6 +39,12 @@ class UserModel {
     this.currentJob,
     required this.createdAt,
     required this.lastActiveAt,
+    this.morningBuffEnabled = true,
+    this.eveningReportEnabled = true,
+    this.morningBuffHour = 7,
+    this.morningBuffMinute = 0,
+    this.eveningReportHour = 21,
+    this.eveningReportMinute = 0,
   }) : parameterExp = parameterExp ?? _initParameterExp(),
        unlockedSkills = unlockedSkills ?? [],
        unlockedJobs = unlockedJobs ?? [];
@@ -59,6 +73,13 @@ class UserModel {
       currentJob: data['currentJob'],
       createdAt: (data['createdAt'] as Timestamp).toDate(),
       lastActiveAt: (data['lastActiveAt'] as Timestamp).toDate(),
+      // 通知設定
+      morningBuffEnabled: data['morningBuffEnabled'] ?? true,
+      eveningReportEnabled: data['eveningReportEnabled'] ?? true,
+      morningBuffHour: data['morningBuffHour'] ?? 7,
+      morningBuffMinute: data['morningBuffMinute'] ?? 0,
+      eveningReportHour: data['eveningReportHour'] ?? 21,
+      eveningReportMinute: data['eveningReportMinute'] ?? 0,
     );
   }
 
@@ -85,6 +106,13 @@ class UserModel {
       'currentJob': currentJob,
       'createdAt': Timestamp.fromDate(createdAt),
       'lastActiveAt': Timestamp.fromDate(lastActiveAt),
+      // 通知設定
+      'morningBuffEnabled': morningBuffEnabled,
+      'eveningReportEnabled': eveningReportEnabled,
+      'morningBuffHour': morningBuffHour,
+      'morningBuffMinute': morningBuffMinute,
+      'eveningReportHour': eveningReportHour,
+      'eveningReportMinute': eveningReportMinute,
     };
   }
 
@@ -100,6 +128,12 @@ class UserModel {
     List<String>? unlockedJobs,
     String? currentJob,
     DateTime? lastActiveAt,
+    bool? morningBuffEnabled,
+    bool? eveningReportEnabled,
+    int? morningBuffHour,
+    int? morningBuffMinute,
+    int? eveningReportHour,
+    int? eveningReportMinute,
   }) {
     return UserModel(
       id: id,
@@ -115,6 +149,13 @@ class UserModel {
       currentJob: currentJob ?? this.currentJob,
       createdAt: createdAt,
       lastActiveAt: lastActiveAt ?? this.lastActiveAt,
+      // 通知設定
+      morningBuffEnabled: morningBuffEnabled ?? this.morningBuffEnabled,
+      eveningReportEnabled: eveningReportEnabled ?? this.eveningReportEnabled,
+      morningBuffHour: morningBuffHour ?? this.morningBuffHour,
+      morningBuffMinute: morningBuffMinute ?? this.morningBuffMinute,
+      eveningReportHour: eveningReportHour ?? this.eveningReportHour,
+      eveningReportMinute: eveningReportMinute ?? this.eveningReportMinute,
     );
   }
 
