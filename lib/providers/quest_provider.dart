@@ -3,7 +3,6 @@ import '../models/quest_entry.dart';
 import '../repositories/quest_repository.dart';
 import '../core/services/openai_service.dart';
 import '../core/config/app_config.dart';
-import '../core/constants/parameters.dart';
 import 'auth_provider.dart';
 
 /// クエストリポジトリのProvider
@@ -117,7 +116,7 @@ class QuestAnalysisNotifier extends StateNotifier<QuestAnalysisState> {
       // クエストエントリを作成
       final quest = QuestEntry(
         id: '',
-        odId: _odId!,
+        odId: _odId,
         createdAt: DateTime.now(),
         rawTranscript: state.transcript,
         summary: result.summary,
@@ -128,7 +127,7 @@ class QuestAnalysisNotifier extends StateNotifier<QuestAnalysisState> {
       );
 
       // Firestoreに保存
-      await _questRepository.saveQuest(_odId!, quest);
+      await _questRepository.saveQuest(_odId, quest);
 
       return quest;
     } catch (e) {

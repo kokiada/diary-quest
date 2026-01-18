@@ -424,7 +424,7 @@ class JobSkillScreen extends ConsumerWidget {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    '${totalExp}/${skill.requiredTotalExp} EXP',
+                    '$totalExp/${skill.requiredTotalExp} EXP',
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
                 ],

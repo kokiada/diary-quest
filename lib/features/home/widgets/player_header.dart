@@ -27,7 +27,7 @@ class PlayerHeader extends ConsumerWidget {
                       border: Border.all(color: Colors.white, width: 3),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.1),
+                          color: Colors.black.withValues(alpha: 0.1),
                           blurRadius: 10,
                           offset: const Offset(0, 4),
                         ),
@@ -64,7 +64,7 @@ class PlayerHeader extends ConsumerWidget {
                         border: Border.all(color: Colors.white, width: 2),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.2),
+                            color: Colors.black.withValues(alpha: 0.2),
                             blurRadius: 4,
                           ),
                         ],
@@ -147,7 +147,7 @@ class PlayerHeader extends ConsumerWidget {
                                   BoxShadow(
                                     color: const Color(
                                       0xFF3B82F6,
-                                    ).withOpacity(0.4),
+                                    ).withValues(alpha: 0.4),
                                     blurRadius: 10,
                                   ),
                                 ],
@@ -168,11 +168,11 @@ class PlayerHeader extends ConsumerWidget {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.8),
+            color: Colors.white.withValues(alpha: 0.8),
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: Colors.white.withOpacity(0.5), width: 1),
+            border: Border.all(color: Colors.white.withValues(alpha: 0.5), width: 1),
             boxShadow: [
-              BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10),
+              BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10),
             ],
           ),
           child: Row(

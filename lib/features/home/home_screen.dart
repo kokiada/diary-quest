@@ -55,8 +55,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 shape: BoxShape.circle,
                 gradient: RadialGradient(
                   colors: [
-                    Colors.blue.shade100.withOpacity(0.7),
-                    Colors.blue.shade50.withOpacity(0.3),
+                    Colors.blue.shade100.withValues(alpha: 0.7),
+                    Colors.blue.shade50.withValues(alpha: 0.3),
                   ],
                 ),
               ),
@@ -72,8 +72,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 shape: BoxShape.circle,
                 gradient: RadialGradient(
                   colors: [
-                    Colors.purple.shade100.withOpacity(0.7),
-                    Colors.purple.shade50.withOpacity(0.3),
+                    Colors.purple.shade100.withValues(alpha: 0.7),
+                    Colors.purple.shade50.withValues(alpha: 0.3),
                   ],
                 ),
               ),
@@ -119,7 +119,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           borderRadius: BorderRadius.circular(24),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 20,
               offset: const Offset(0, 10),
             ),
@@ -143,7 +143,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         ),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF3B82F6).withOpacity(0.5),
+            color: const Color(0xFF3B82F6).withValues(alpha: 0.5),
             blurRadius: 20,
             spreadRadius: 0,
           ),
@@ -164,14 +164,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   Widget _buildBottomNav() {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.9),
+        color: Colors.white.withValues(alpha: 0.9),
         border: const Border(
           top: BorderSide(color: Color(0xFFE2E8F0), width: 1),
         ),
         borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.03),
+            color: Colors.black.withValues(alpha: 0.03),
             blurRadius: 40,
             offset: const Offset(0, -10),
           ),

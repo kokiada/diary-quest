@@ -22,9 +22,11 @@ class _LanguageSettingsState extends State<LanguageSettings> {
         children: [
           RadioListTile<String>(
             value: 'ja',
+            // ignore: deprecated_member_use
             groupValue: _selectedLanguage,
             title: const Text('日本語'),
             subtitle: const Text('日本語'),
+            // ignore: deprecated_member_use
             onChanged: (value) {
               setState(() => _selectedLanguage = value!);
               // TODO: 言語変更処理
@@ -33,9 +35,11 @@ class _LanguageSettingsState extends State<LanguageSettings> {
           ),
           RadioListTile<String>(
             value: 'en',
+            // ignore: deprecated_member_use
             groupValue: _selectedLanguage,
             title: const Text('English'),
             subtitle: const Text('英語'),
+            // ignore: deprecated_member_use
             onChanged: (value) {
               setState(() => _selectedLanguage = value!);
               // TODO: 言語変更処理

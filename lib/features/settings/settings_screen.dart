@@ -192,7 +192,8 @@ class SettingsScreen extends ConsumerWidget {
               onChanged: (value) {
                 // TODO: 通知設定
               },
-              activeColor: AppColors.secondary,
+              activeTrackColor: AppColors.secondary.withValues(alpha: 0.5),
+              thumbColor: WidgetStateProperty.all(AppColors.secondary),
             ),
           ),
           const Divider(),
