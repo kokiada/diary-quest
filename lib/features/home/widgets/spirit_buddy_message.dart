@@ -21,7 +21,7 @@ class SpiritBuddyMessage extends StatelessWidget {
                 border: Border.all(color: const Color(0xFFE2E8F0), width: 1),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
+                    color: Colors.black.withValues(alpha: 0.05),
                     blurRadius: 10,
                     offset: const Offset(0, 4),
                   ),
@@ -70,7 +70,7 @@ class SpiritBuddyMessage extends StatelessWidget {
               border: Border.all(color: const Color(0xFFE2E8F0), width: 1),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.08),
+                  color: Colors.black.withValues(alpha: 0.08),
                   blurRadius: 40,
                   offset: const Offset(0, 10),
                 ),

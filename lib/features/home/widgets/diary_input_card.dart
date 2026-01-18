@@ -27,7 +27,7 @@ class _DiaryInputCardState extends ConsumerState<DiaryInputCard> {
         borderRadius: BorderRadius.circular(32),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.08),
+            color: Colors.black.withValues(alpha: 0.08),
             blurRadius: 40,
             offset: const Offset(0, 10),
           ),
@@ -74,7 +74,7 @@ class _DiaryInputCardState extends ConsumerState<DiaryInputCard> {
                       end: Alignment.bottomCenter,
                       colors: [
                         Colors.transparent,
-                        Colors.black.withOpacity(0.6),
+                        Colors.black.withValues(alpha: 0.6),
                       ],
                     ),
                   ),
@@ -93,15 +93,15 @@ class _DiaryInputCardState extends ConsumerState<DiaryInputCard> {
                         vertical: 6,
                       ),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.2),
+                        color: Colors.white.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(20),
                         border: Border.all(
-                          color: Colors.white.withOpacity(0.3),
+                          color: Colors.white.withValues(alpha: 0.3),
                           width: 1,
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.1),
+                            color: Colors.black.withValues(alpha: 0.1),
                             blurRadius: 10,
                           ),
                         ],
@@ -169,7 +169,7 @@ class _DiaryInputCardState extends ConsumerState<DiaryInputCard> {
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
+                        color: Colors.black.withValues(alpha: 0.1),
                         blurRadius: 10,
                       ),
                     ],

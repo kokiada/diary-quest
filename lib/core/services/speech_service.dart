@@ -15,8 +15,14 @@ class SpeechService {
   /// 初期化
   Future<bool> initialize() async {
     _isInitialized = await _speechToText.initialize(
-      onError: (error) => print('SpeechToText Error: $error'),
-      onStatus: (status) => print('SpeechToText Status: $status'),
+      onError: (error) {
+        // ignore: avoid_print
+        print('SpeechToText Error: $error');
+      },
+      onStatus: (status) {
+        // ignore: avoid_print
+        print('SpeechToText Status: $status');
+      },
     );
     return _isInitialized;
   }
@@ -35,9 +41,11 @@ class SpeechService {
         onResult(result.recognizedWords, result.finalResult);
       },
       localeId: localeId,
-      listenMode: ListenMode.dictation,
-      partialResults: true,
-      cancelOnError: false,
+      listenOptions: SpeechListenOptions(
+        listenMode: ListenMode.dictation,
+        partialResults: true,
+        cancelOnError: false,
+      ),
     );
   }
 
