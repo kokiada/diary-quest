@@ -13,7 +13,7 @@
   - Firebase Console からダウンロードして配置
   - 参考: `lib/firebase_options.dart:29`
 
-- [進行中] **FIRE-2**: Web Firebase設定のプレースホルダー修正
+- [x] **FIRE-2**: Web Firebase設定のプレースホルダー修正
   - ファイル: `lib/firebase_options.dart:29`
   - FIXME コメントを削除して本番設定に置き換え
   - 実装メモ: FIXMEコメントを削除、Firebase Consoleの説明を追加
@@ -23,19 +23,19 @@
   - 現在は明示的に無効化されている
 
 ### データ永続化
-- [進行中] **DATA-1**: ユーザープロフィールのFirestore読み込み実装
+- [x] **DATA-1**: ユーザープロフィールのFirestore読み込み実装
   - ファイル: `lib/providers/auth_provider.dart:72`
   - 現状: ハードコードされたモックデータ
   - 実装内容: `users` コレクションからリアルタイムにユーザーデータを読み込み
   - 実装メモ: UserRepository経由でユーザーデータを取得、存在しない場合は新規作成
 
-- [進行中] **DATA-2**: ナビゲーター選択のFirestore保存実装
+- [x] **DATA-2**: ナビゲーター選択のFirestore保存実装
   - ファイル: `lib/providers/auth_provider.dart:120`
   - ファイル: `lib/features/auth/navigator_selection_screen.dart:195`
   - 実装内容: 選択したナビゲーターを `users.selectedNavigator` に保存
   - 実装メモ: UserRepository.updateNavigatorメソッドを実装
 
-- [進行中] **DATA-3**: ユーザー進捗データのリアル値計算実装
+- [x] **DATA-3**: ユーザー進捗データのリアル値計算実装
   - ファイル: `lib/providers/user_provider.dart:39-42`
   - 現状: XP進捗、クエスト数、フォーカスボーナスがハードコード
   - 実装内容:
@@ -45,7 +45,7 @@
     - フォーカスボーナスを動的に算出
   - 実装メモ: xpProgress、focusBonusプロパティをリアル計算に変更、_loadUserDataで並行ロード
 
-- [進行中] **DATA-4**: ステータス画面のリアルデータ接続
+- [x] **DATA-4**: ステータス画面のリアルデータ接続
   - ファイル: `lib/features/status/status_screen.dart:114-121`
   - 現状: すべてのカテゴリ値がハードコード
   - 実装内容: UserProvider から実際のパラメータ値を取得
@@ -182,10 +182,10 @@
 
 | Phase | 完了タスク | 全タスク | 完了率 |
 |-------|-----------|---------|--------|
-| Phase 1: クリティカル修正 | 0/13 | 0% | 🔴 未着手 |
+| Phase 1: クリティカル修正 | 5/13 | 38% | 🟡 進行中 |
 | Phase 2: 機能完成 | 0/9 | 0% | 🔴 未着手 |
 | Phase 3: 品質向上 | 0/14 | 0% | 🔴 未着手 |
-| **全体** | **0/36** | **0%** | 🔴 未着手 |
+| **全体** | **5/36** | **14%** | 🟡 進行中 |
 
 ---
 
