@@ -1,7 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/user.dart';
+import '../models/quest_entry.dart';
 import '../core/constants/parameters.dart';
 import '../repositories/user_repository.dart';
+import '../repositories/quest_repository.dart';
 import 'auth_provider.dart';
 
 /// ユーザーリポジトリのProvider
@@ -9,11 +11,21 @@ final userRepositoryProvider = Provider<UserRepository>((ref) {
   return UserRepository();
 });
 
+/// クエストリポジトリのProvider
+final questRepositoryProvider = Provider<QuestRepository>((ref) {
+  return QuestRepository();
+});
+
 /// ユーザー状態管理Provider
 final userProvider = StateNotifierProvider<UserNotifier, UserState>((ref) {
   final repository = ref.watch(userRepositoryProvider);
+  final questRepository = ref.watch(questRepositoryProvider);
   final authState = ref.watch(authProvider);
-  return UserNotifier(repository, authState.firebaseUser?.uid);
+  return UserNotifier(
+    repository,
+    questRepository,
+    authState.firebaseUser?.uid,
+  );
 });
 
 /// ユーザー状態
@@ -21,77 +33,143 @@ class UserState {
   final UserModel? user;
   final bool isLoading;
   final String? error;
+  final int todayQuestCount;
 
-  const UserState({this.user, this.isLoading = false, this.error});
+  const UserState({
+    this.user,
+    this.isLoading = false,
+    this.error,
+    this.todayQuestCount = 0,
+  });
 
-  UserState copyWith({UserModel? user, bool? isLoading, String? error}) {
+  UserState copyWith({
+    UserModel? user,
+    bool? isLoading,
+    String? error,
+    int? todayQuestCount,
+  }) {
     return UserState(
       user: user ?? this.user,
       isLoading: isLoading ?? this.isLoading,
       error: error,
+      todayQuestCount: todayQuestCount ?? this.todayQuestCount,
     );
   }
 
   // UI用のヘルパープロパティ
   int get level => user?.baseLevel ?? 1;
-  int get gold => user?.totalExp ?? 1250;
+  int get gold => user?.totalExp ?? 0;
   String get jobTitle => user?.currentJob ?? 'STRATEGIST';
-  double get xpProgress => 0.65; // TODO: 実際のXP計算
-  int get completedQuests => 4; // TODO: 実際のクエスト数
-  int get streak => user?.consecutiveDays ?? 12;
-  int get focusBonus => 15; // TODO: 実際のボーナス計算
+
+  /// 現在のレベルでのXP進捗（0.0〜1.0）
+  double get xpProgress {
+    if (user == null) return 0.0;
+
+    final totalExp = user!.totalExp;
+    final currentLevel = user!.baseLevel;
+
+    // レベルごとの必要XP
+    final levelThresholds = [0, 200, 500, 1000, 2000]; // レベル1〜5の境界
+
+    if (currentLevel >= 5) return 1.0; // 最大レベル
+
+    final currentLevelMin = levelThresholds[currentLevel - 1];
+    final nextLevelMin = levelThresholds[currentLevel];
+    final currentLevelExp = totalExp - currentLevelMin;
+    final levelExpNeeded = nextLevelMin - currentLevelMin;
+
+    if (levelExpNeeded <= 0) return 1.0;
+    return (currentLevelExp / levelExpNeeded).clamp(0.0, 1.0);
+  }
+
+  int get completedQuests => todayQuestCount;
+  int get streak => user?.consecutiveDays ?? 0;
+
+  /// フォーカスボーナス（連続日数に基づいて計算）
+  int get focusBonus {
+    final consecutiveDays = user?.consecutiveDays ?? 0;
+    if (consecutiveDays >= 30) return 50;
+    if (consecutiveDays >= 21) return 40;
+    if (consecutiveDays >= 14) return 30;
+    if (consecutiveDays >= 7) return 20;
+    if (consecutiveDays >= 3) return 10;
+    return 0;
+  }
 }
 
 /// ユーザー状態のNotifier
 class UserNotifier extends StateNotifier<UserState> {
   final UserRepository _repository;
+  final QuestRepository _questRepository;
   final String? _odId;
 
-  UserNotifier(this._repository, this._odId) : super(const UserState()) {
+  UserNotifier(
+    this._repository,
+    this._questRepository,
+    this._odId,
+  ) : super(const UserState()) {
     if (_odId != null) {
-      _loadUser();
+      _loadUserData();
     }
   }
 
-  Future<void> _loadUser() async {
-    if (_odId == null) return;
+  /// ユーザーデータをロード
+  Future<void> _loadUserData() async {
+    final odId = _odId;
+    if (odId == null) return;
 
     state = state.copyWith(isLoading: true);
     try {
-      final user = await _repository.getUser(_odId!);
-      state = state.copyWith(user: user);
+      // ユーザーと今日のクエスト数を並行してロード
+      final results = await Future.wait([
+        _repository.getUser(odId),
+        _questRepository.getTodayQuests(odId),
+      ]);
+
+      final user = results[0] as UserModel?;
+      final todayQuests = results[1] as List<QuestEntry>;
+
+      state = state.copyWith(
+        user: user,
+        todayQuestCount: todayQuests.length,
+        isLoading: false,
+      );
     } catch (e) {
-      state = state.copyWith(error: e.toString());
-    } finally {
-      state = state.copyWith(isLoading: false);
+      state = state.copyWith(
+        error: e.toString(),
+        isLoading: false,
+      );
     }
   }
 
   /// 経験値を追加
   Future<void> addExperience(Map<GrowthParameter, int> expMap) async {
-    if (_odId == null || state.user == null) return;
+    final odId = _odId;
+    final user = state.user;
+    if (odId == null || user == null) return;
 
     final totalExp = expMap.values.fold(0, (a, b) => a + b);
 
     // ローカル状態を更新
-    final newParamExp = Map<GrowthParameter, int>.from(
-      state.user!.parameterExp,
-    );
+    final newParamExp = Map<GrowthParameter, int>.from(user.parameterExp);
     for (var entry in expMap.entries) {
       newParamExp[entry.key] = (newParamExp[entry.key] ?? 0) + entry.value;
     }
 
-    final updatedUser = state.user!.copyWith(
+    final updatedUser = user.copyWith(
       parameterExp: newParamExp,
-      totalExp: state.user!.totalExp + totalExp,
+      totalExp: user.totalExp + totalExp,
     );
-    state = state.copyWith(user: updatedUser);
+    state = state.copyWith(
+      user: updatedUser,
+      todayQuestCount: state.todayQuestCount + 1,
+    );
 
     // Firestoreに保存
     final expMapString = {
       for (var entry in expMap.entries) entry.key.name: entry.value,
     };
-    await _repository.addExperience(_odId!, expMapString, totalExp);
+    await _repository.addExperience(odId, expMapString, totalExp);
 
     // スキルとジョブの解禁チェック
     await _checkUnlocks(updatedUser);
@@ -105,31 +183,33 @@ class UserNotifier extends StateNotifier<UserState> {
 
   /// 連続日数を更新
   Future<void> updateConsecutiveDays() async {
-    if (_odId == null || state.user == null) return;
+    final odId = _odId;
+    final user = state.user;
+    if (odId == null || user == null) return;
 
     final today = DateTime.now();
-    final lastActive = state.user!.lastActiveAt;
+    final lastActive = user.lastActiveAt;
     final daysDiff = today.difference(lastActive).inDays;
 
     int newDays;
     if (daysDiff == 1) {
       // 連続
-      newDays = state.user!.consecutiveDays + 1;
+      newDays = user.consecutiveDays + 1;
     } else if (daysDiff == 0) {
       // 同日
-      newDays = state.user!.consecutiveDays;
+      newDays = user.consecutiveDays;
     } else {
       // リセット
       newDays = 1;
     }
 
-    final updatedUser = state.user!.copyWith(
+    final updatedUser = user.copyWith(
       consecutiveDays: newDays,
       lastActiveAt: today,
     );
     state = state.copyWith(user: updatedUser);
 
-    await _repository.updateConsecutiveDays(_odId!, newDays);
+    await _repository.updateConsecutiveDays(odId, newDays);
 
     // 拠点レベルの更新チェック
     await _checkBaseLevel(updatedUser);
@@ -137,6 +217,9 @@ class UserNotifier extends StateNotifier<UserState> {
 
   /// 拠点レベルのチェック
   Future<void> _checkBaseLevel(UserModel user) async {
+    final odId = _odId;
+    if (odId == null) return;
+
     final totalExp = user.totalExp;
     final currentLevel = user.baseLevel;
 
@@ -156,7 +239,7 @@ class UserNotifier extends StateNotifier<UserState> {
     if (newLevel > currentLevel) {
       final updatedUser = user.copyWith(baseLevel: newLevel);
       state = state.copyWith(user: updatedUser);
-      await _repository.updateBaseLevel(_odId!, newLevel);
+      await _repository.updateBaseLevel(odId, newLevel);
       // TODO: 拠点進化アニメーションをトリガー
     }
   }

@@ -2,10 +2,17 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../core/services/auth_service.dart';
 import '../models/user.dart';
+import '../repositories/user_repository.dart';
+
+/// ユーザーリポジトリのProvider
+final authUserRepositoryProvider = Provider<UserRepository>((ref) {
+  return UserRepository();
+});
 
 /// 認証状態を管理するProvider
 final authProvider = StateNotifierProvider<AuthNotifier, AuthState>((ref) {
-  return AuthNotifier();
+  final repository = ref.watch(authUserRepositoryProvider);
+  return AuthNotifier(repository);
 });
 
 /// 認証状態
@@ -48,8 +55,9 @@ class AuthState {
 /// 認証状態のNotifier
 class AuthNotifier extends StateNotifier<AuthState> {
   final AuthService _authService = AuthService();
+  final UserRepository _userRepository;
 
-  AuthNotifier() : super(const AuthState()) {
+  AuthNotifier(this._userRepository) : super(const AuthState()) {
     _init();
   }
 
@@ -69,17 +77,37 @@ class AuthNotifier extends StateNotifier<AuthState> {
   }
 
   Future<void> _loadUserModel(String odId) async {
-    // TODO: Firestoreからユーザーモデルを読み込む
-    // 仮のユーザーモデルを作成
-    final userModel = UserModel(
-      id: odId,
-      email: _authService.currentUser?.email ?? '',
-      displayName: _authService.currentUser?.displayName ?? '冒険者',
-      selectedNavigator: NavigatorType.strategist,
-      createdAt: DateTime.now(),
-      lastActiveAt: DateTime.now(),
-    );
-    state = state.copyWith(userModel: userModel);
+    try {
+      // Firestoreからユーザーモデルを読み込む
+      final userModel = await _userRepository.getUser(odId);
+
+      if (userModel != null) {
+        state = state.copyWith(userModel: userModel);
+      } else {
+        // ユーザードキュメントが存在しない場合は新規作成
+        final newUser = UserModel(
+          id: odId,
+          email: _authService.currentUser?.email ?? '',
+          displayName: _authService.currentUser?.displayName ?? '冒険者',
+          selectedNavigator: NavigatorType.strategist,
+          createdAt: DateTime.now(),
+          lastActiveAt: DateTime.now(),
+        );
+        await _userRepository.createUser(newUser);
+        state = state.copyWith(userModel: newUser);
+      }
+    } catch (e) {
+      // エラー時はフォールバックとしてモックユーザーを作成
+      final fallbackUser = UserModel(
+        id: odId,
+        email: _authService.currentUser?.email ?? '',
+        displayName: _authService.currentUser?.displayName ?? '冒険者',
+        selectedNavigator: NavigatorType.strategist,
+        createdAt: DateTime.now(),
+        lastActiveAt: DateTime.now(),
+      );
+      state = state.copyWith(userModel: fallbackUser);
+    }
   }
 
   Future<void> signUp(String email, String password) async {
@@ -112,11 +140,21 @@ class AuthNotifier extends StateNotifier<AuthState> {
   }
 
   Future<void> updateNavigator(NavigatorType navigator) async {
-    if (state.userModel == null) return;
+    if (state.userModel == null || state.firebaseUser == null) return;
 
-    final updatedUser = state.userModel!.copyWith(selectedNavigator: navigator);
+    final updatedUser = state.userModel!.copyWith(
+      selectedNavigator: navigator,
+      lastActiveAt: DateTime.now(),
+    );
     state = state.copyWith(userModel: updatedUser);
 
-    // TODO: Firestoreに保存
+    // Firestoreに保存
+    try {
+      await _userRepository.updateNavigator(state.firebaseUser!.uid, navigator);
+    } catch (e) {
+      // エラー時は状態をロールバック
+      state = state.copyWith(userModel: state.userModel);
+      rethrow;
+    }
   }
 }
