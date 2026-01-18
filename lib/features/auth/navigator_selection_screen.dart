@@ -7,7 +7,12 @@ import '../home/home_screen.dart';
 
 /// ナビゲーター（相棒）選択画面
 class NavigatorSelectionScreen extends ConsumerStatefulWidget {
-  const NavigatorSelectionScreen({super.key});
+  final bool isChanging; // 変更モードフラグ
+
+  const NavigatorSelectionScreen({
+    super.key,
+    this.isChanging = false,
+  });
 
   @override
   ConsumerState<NavigatorSelectionScreen> createState() =>
@@ -17,6 +22,16 @@ class NavigatorSelectionScreen extends ConsumerStatefulWidget {
 class _NavigatorSelectionScreenState
     extends ConsumerState<NavigatorSelectionScreen> {
   NavigatorType? _selectedNavigator;
+
+  @override
+  void initState() {
+    super.initState();
+    // 変更モードの場合は現在のナビゲーターを選択状態にする
+    if (widget.isChanging) {
+      final authState = ref.read(authProvider);
+      _selectedNavigator = authState.userModel?.selectedNavigator;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -43,15 +58,17 @@ class _NavigatorSelectionScreenState
       child: Column(
         children: [
           Text(
-            '相棒を選ぼう',
+            widget.isChanging ? '相棒を変更' : '相棒を選ぼう',
             style: Theme.of(context).textTheme.displaySmall?.copyWith(
-              color: AppColors.textPrimary,
-              fontWeight: FontWeight.bold,
-            ),
+                  color: AppColors.textPrimary,
+                  fontWeight: FontWeight.bold,
+                ),
           ),
           const SizedBox(height: 8),
           Text(
-            'あなたの冒険を共にする仲間を選んでください',
+            widget.isChanging
+                ? '新しい相棒を選んでください'
+                : 'あなたの冒険を共にする仲間を選んでください',
             style: Theme.of(context).textTheme.bodyMedium,
             textAlign: TextAlign.center,
           ),
@@ -150,9 +167,9 @@ class _NavigatorSelectionScreenState
             foregroundColor: AppColors.background,
             disabledBackgroundColor: AppColors.surfaceLight,
           ),
-          child: const Text(
-            'この相棒と冒険を始める',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          child: Text(
+            widget.isChanging ? '変更する' : 'この相棒と冒険を始める',
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           ),
         ),
       ),
@@ -196,9 +213,15 @@ class _NavigatorSelectionScreenState
     await ref.read(authProvider.notifier).updateNavigator(_selectedNavigator!);
 
     if (mounted) {
-      Navigator.of(
-        context,
-      ).pushReplacement(MaterialPageRoute(builder: (_) => const HomeScreen()));
+      if (widget.isChanging) {
+        // 変更モードの場合は設定画面に戻る
+        Navigator.of(context).pop(true);
+      } else {
+        // 初回選択の場合はホーム画面に遷移
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (_) => const HomeScreen()),
+        );
+      }
     }
   }
 }

@@ -4,6 +4,7 @@ import '../../core/constants/app_colors.dart';
 import '../../providers/auth_provider.dart';
 import '../../models/user.dart';
 import '../auth/login_screen.dart';
+import '../auth/navigator_selection_screen.dart';
 import 'widgets/edit_profile_dialog.dart';
 
 /// 設定画面
@@ -113,8 +114,19 @@ class SettingsScreen extends ConsumerWidget {
             children: [
               Text('相棒', style: Theme.of(context).textTheme.titleLarge),
               TextButton(
-                onPressed: () {
-                  // TODO: ナビゲーター変更
+                onPressed: () async {
+                  final result = await Navigator.of(context).push<bool>(
+                    MaterialPageRoute(
+                      builder: (context) => const NavigatorSelectionScreen(
+                        isChanging: true, // 変更モードフラグ
+                      ),
+                    ),
+                  );
+                  if (result == true && context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('ナビゲーターを変更しました')),
+                    );
+                  }
                 },
                 child: const Text('変更'),
               ),
