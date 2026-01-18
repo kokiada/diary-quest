@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/constants/app_colors.dart';
 import '../../providers/quest_provider.dart';
 import '../../models/quest_entry.dart';
+import 'widgets/weekly_exp_chart.dart';
 
 /// 冒険譚（ウィークリーレポート）画面
 class WeeklyReportScreen extends ConsumerWidget {
@@ -57,6 +58,10 @@ class WeeklyReportScreen extends ConsumerWidget {
 
         // 週間統計
         _buildWeeklyStats(context, totalExp, questCount),
+        const SizedBox(height: 16),
+
+        // グラフ表示
+        WeeklyExpChart(quests: quests),
         const SizedBox(height: 24),
 
         // 日別エントリ
@@ -110,7 +115,7 @@ class WeeklyReportScreen extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            '第${weekNumber}章',
+            '第$weekNumber章',
             style: const TextStyle(
               color: AppColors.secondary,
               fontSize: 14,
