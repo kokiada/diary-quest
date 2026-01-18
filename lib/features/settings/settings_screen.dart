@@ -3,17 +3,84 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/constants/app_colors.dart';
 import '../../providers/auth_provider.dart';
 import '../../models/user.dart';
+import '../../repositories/user_repository.dart';
 import '../auth/login_screen.dart';
 import '../auth/navigator_selection_screen.dart';
 import 'widgets/edit_profile_dialog.dart';
 import 'widgets/language_settings.dart';
 
 /// 設定画面
-class SettingsScreen extends ConsumerWidget {
+class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<SettingsScreen> createState() => _SettingsScreenState();
+}
+
+class _SettingsScreenState extends ConsumerState<SettingsScreen> {
+  bool _notificationsEnabled = true;
+  bool _isLoadingNotifications = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadNotificationSettings();
+  }
+
+  Future<void> _loadNotificationSettings() async {
+    final authState = ref.read(authProvider);
+    final userModel = authState.userModel;
+    if (userModel != null) {
+      setState(() {
+        _notificationsEnabled = userModel.morningBuffEnabled || userModel.eveningReportEnabled;
+      });
+    }
+  }
+
+  Future<void> _toggleNotifications(bool value) async {
+    setState(() => _isLoadingNotifications = true);
+
+    try {
+      final authState = ref.read(authProvider);
+      final userId = authState.firebaseUser?.uid;
+
+      if (userId != null) {
+        final userRepository = UserRepository();
+        await userRepository.updateNotificationSettings(
+          userId,
+          morningBuffEnabled: value,
+          eveningReportEnabled: value,
+        );
+
+        setState(() {
+          _notificationsEnabled = value;
+        });
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(value ? '通知をオンにしました' : '通知をオフにしました'),
+              duration: const Duration(seconds: 2),
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('通知設定の更新に失敗しました: $e'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+    } finally {
+      setState(() => _isLoadingNotifications = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final authState = ref.watch(authProvider);
 
     return SingleChildScrollView(
@@ -88,7 +155,7 @@ class SettingsScreen extends ConsumerWidget {
                 builder: (context) => const EditProfileDialog(),
               );
               if (result == true) {
-                // プロフィール更新成功
+                // プロフィール更新成功 - UIは自動更新される
               }
             },
           ),
@@ -187,14 +254,18 @@ class SettingsScreen extends ConsumerWidget {
             icon: Icons.notifications,
             title: '通知',
             subtitle: '朝のバフ・夜の報告',
-            trailing: Switch(
-              value: true,
-              onChanged: (value) {
-                // TODO: 通知設定
-              },
-              activeTrackColor: AppColors.secondary.withValues(alpha: 0.5),
-              thumbColor: WidgetStateProperty.all(AppColors.secondary),
-            ),
+            trailing: _isLoadingNotifications
+                ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : Switch(
+                    value: _notificationsEnabled,
+                    onChanged: _toggleNotifications,
+                    activeTrackColor: AppColors.secondary.withValues(alpha: 0.5),
+                    thumbColor: WidgetStateProperty.all(AppColors.secondary),
+                  ),
           ),
           const Divider(),
           _buildSettingItem(

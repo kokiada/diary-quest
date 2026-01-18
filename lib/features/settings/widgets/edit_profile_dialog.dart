@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../providers/auth_provider.dart';
 import '../../../core/constants/app_colors.dart';
+import '../../../repositories/user_repository.dart';
 
 /// プロフィール編集ダイアログ
 class EditProfileDialog extends ConsumerStatefulWidget {
@@ -48,18 +49,27 @@ class _EditProfileDialogState extends ConsumerState<EditProfileDialog> {
     });
 
     try {
-      // TODO: Developer Bが実装するRepositoryメソッドを呼び出し
-      // await ref.read(userProvider.notifier).updateProfile(
-      //   displayName: _nameController.text.trim(),
-      // );
+      final authState = ref.read(authProvider);
+      final userId = authState.firebaseUser?.uid;
 
-      // ダミーの保存処理（Developer Bの実装完了後に削除）
-      await Future.delayed(const Duration(milliseconds: 500));
+      if (userId == null) {
+        throw Exception('ユーザーが認証されていません');
+      }
+
+      // UserRepositoryで表示名を更新
+      final userRepository = UserRepository();
+      await userRepository.updateDisplayName(
+        userId,
+        _nameController.text.trim(),
+      );
 
       if (mounted) {
         Navigator.of(context).pop(true);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('プロフィールを更新しました')),
+          const SnackBar(
+            content: Text('プロフィールを更新しました'),
+            backgroundColor: AppColors.primary,
+          ),
         );
       }
     } catch (e) {
