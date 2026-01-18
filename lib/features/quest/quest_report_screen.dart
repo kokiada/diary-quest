@@ -5,6 +5,7 @@ import '../../core/constants/parameters.dart';
 import '../../core/services/speech_service.dart';
 import '../../providers/quest_provider.dart';
 import 'widgets/quest_result_card.dart';
+import 'widgets/quest_loading_animation.dart';
 
 /// クエスト報告画面（音声入力）
 class QuestReportScreen extends ConsumerStatefulWidget {
@@ -215,22 +216,7 @@ class _QuestReportScreenState extends ConsumerState<QuestReportScreen>
   }
 
   Widget _buildAnalyzingIndicator() {
-    return Column(
-      children: [
-        Container(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            children: [
-              const CircularProgressIndicator(color: AppColors.secondary),
-              const SizedBox(height: 16),
-              Text('AIが分析中...', style: Theme.of(context).textTheme.bodyLarge),
-              const SizedBox(height: 8),
-              Text('経験値を計算しています', style: Theme.of(context).textTheme.bodySmall),
-            ],
-          ),
-        ),
-      ],
-    );
+    return const QuestLoadingAnimation();
   }
 
   Widget _buildResultView(QuestAnalysisState state) {
@@ -334,7 +320,7 @@ class _QuestReportScreenState extends ConsumerState<QuestReportScreen>
     );
   }
 
-  Widget _buildExpBreakdown(result) {
+  Widget _buildExpBreakdown(dynamic result) {
     final earnedExp = result.earnedExp as Map<GrowthParameter, int>;
     if (earnedExp.isEmpty) return const SizedBox.shrink();
 
@@ -398,7 +384,6 @@ class _QuestReportScreenState extends ConsumerState<QuestReportScreen>
   }
 
   void _toggleRecording() {
-    final notifier = ref.read(questAnalysisProvider.notifier);
     final state = ref.read(questAnalysisProvider);
 
     if (state.isRecording) {
