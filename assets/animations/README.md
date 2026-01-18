@@ -1,30 +1,49 @@
 # Animation Assets
 
-このディレクトリにはLottieアニメーションファイルを配置します。
+This directory requires Lottie JSON animation files.
 
-## 必要なアニメーション
+## Required Animations
 
-- `level_up.json` - レベルアップ時のアニメーション
-- `skill_unlock.json` - スキル解放時のアニメーション
-- `job_unlock.json` - ジョブ解放時のアニメーション
-- `base_evolution.json` - 拠点進化時のアニメーション
+### 1. Level Up Animation (`level_up.json`)
+- **Description**: Base/Home evolution celebration animation
+- **Trigger**: When user levels up (baseLevel increases)
+- **Duration**: ~2-3 seconds
+- **Style**: RPG-style level up effects with sparkles and glow
+- **Used by**: `lib/widgets/base_levelup_dialog.dart`
 
-## 配置手順
+### 2. Skill Unlock Animation (`skill_unlock.json`)
+- **Description**: New skill unlock celebration
+- **Trigger**: When user earns enough XP to unlock a new skill
+- **Duration**: ~2 seconds
+- **Style**: Book or scroll opening with magical effects
+- **Used by**: `lib/widgets/skill_unlock_dialog.dart`
 
-1. Lottie JSONファイルを準備する
-2. このディレクトリに配置する
-3. アプリを再ビルドする (`flutter run`)
+### 3. Job Unlock Animation (`job_unlock.json`)
+- **Description**: New job/class unlock celebration
+- **Trigger**: When user meets requirements for a new job
+- **Duration**: ~2-3 seconds
+- **Style**: Badge or shield reveal with grand effects
+- **Used by**: `lib/widgets/job_unlock_dialog.dart`
 
-## 使用方法
+## Placeholder Status
 
-```dart
-import 'package:lottie/lottie.dart';
+Currently using placeholder containers. To add real animations:
 
-Lottie.asset('assets/animations/level_up.json');
-```
+1. Download or create Lottie JSON files
+2. Place them in this directory with the names above
+3. The dialogs will automatically load and display them
 
-## 注意事項
+## Resources
 
-- アニメーションファイルはGitにコミットされます
-- Lottieファイルサイズは適切に最適化してください
-- Lottieファイルは https://lottiefiles.com/ などから入手可能
+- Lottie Files: https://lottiefiles.com/
+- Create custom: https://lottiefiles.com/create
+- Flutter Lottie package: https://pub.dev/packages/lottie
+
+## Current Implementation
+
+The animation dialogs are implemented in:
+- `lib/widgets/base_levelup_dialog.dart`
+- `lib/widgets/skill_unlock_dialog.dart`
+- `lib/widgets/job_unlock_dialog.dart`
+
+They use `Lottie.asset()` to load animations from this directory.
