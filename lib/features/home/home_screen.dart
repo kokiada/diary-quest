@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../quest/quest_report_screen.dart';
+import '../quest_history/quest_history_screen.dart';
+import '../job_skill/job_skill_screen.dart';
+import '../status/status_screen.dart';
+import '../settings/settings_screen.dart';
 import 'widgets/player_header.dart';
 import 'widgets/diary_input_card.dart';
 import 'widgets/stats_row.dart';
 import 'widgets/spirit_buddy_message.dart';
 
 /// ホーム画面 - 日記中心のモダンデザイン
+/// Tab navigation integration for all major screens
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
 
@@ -17,6 +22,15 @@ class HomeScreen extends ConsumerStatefulWidget {
 class _HomeScreenState extends ConsumerState<HomeScreen> {
   int _currentIndex = 0;
 
+  // List of screens for navigation
+  final List<Widget> _screens = [
+    const _HomeContent(),
+    const QuestHistoryScreen(),
+    const JobSkillScreen(),
+    const StatusScreen(),
+    const SettingsScreen(),
+  ];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -25,12 +39,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           // 背景グラデーション
           _buildBackground(),
 
-          // メインコンテンツ
-          SafeArea(
-            child: _currentIndex == 0
-                ? _buildHomeContent()
-                : _buildOtherContent(),
-          ),
+          // メインコンテンツ - Tab navigation
+          _screens[_currentIndex],
         ],
       ),
       floatingActionButton: _currentIndex == 0 ? _buildMicButton() : null,
@@ -84,52 +94,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
-  Widget _buildHomeContent() {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(24, 24, 24, 120),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // プレイヤーヘッダー（レベル、XP、ゴールド）
-          const PlayerHeader(),
-          const SizedBox(height: 24),
-
-          // 日記入力カード（メイン機能）
-          const DiaryInputCard(),
-          const SizedBox(height: 24),
-
-          // 統計情報（クエスト、ストリーク、フォーカス）
-          const StatsRow(),
-          const SizedBox(height: 24),
-
-          // スピリットバディのメッセージ
-          const SpiritBuddyMessage(),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildOtherContent() {
-    return Center(
-      child: Container(
-        padding: const EdgeInsets.all(32),
-        margin: const EdgeInsets.all(24),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(24),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
-              blurRadius: 20,
-              offset: const Offset(0, 10),
-            ),
-          ],
-        ),
-        child: Text('準備中...', style: Theme.of(context).textTheme.titleLarge),
-      ),
-    );
-  }
-
   Widget _buildMicButton() {
     return Container(
       width: 64,
@@ -179,27 +143,18 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       ),
       child: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           child: SizedBox(
             height: 64,
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                Row(
-                  children: [
-                    _buildNavItem(0, Icons.home_rounded, 'Home'),
-                    const SizedBox(width: 32),
-                    _buildNavItem(1, Icons.auto_awesome, 'Quest'),
-                  ],
-                ),
+                _buildNavItem(0, Icons.home_rounded, 'ホーム'),
+                _buildNavItem(1, Icons.auto_awesome, 'クエスト'),
                 const SizedBox(width: 64), // マイクボタンのスペース
-                Row(
-                  children: [
-                    _buildNavItem(2, Icons.auto_fix_high, 'Skill'),
-                    const SizedBox(width: 32),
-                    _buildNavItem(3, Icons.person_rounded, 'Hero'),
-                  ],
-                ),
+                _buildNavItem(2, Icons.auto_fix_high, 'ジョブ'),
+                _buildNavItem(3, Icons.bar_chart, 'ステータス'),
+                _buildNavItem(4, Icons.settings, '設定'),
               ],
             ),
           ),
@@ -221,16 +176,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           children: [
             Icon(
               icon,
-              size: 28,
+              size: 24,
               color: isSelected
                   ? const Color(0xFF3B82F6)
                   : const Color(0xFF94A3B8),
             ),
-            const SizedBox(height: 4),
+            const SizedBox(height: 2),
             Text(
               label,
               style: TextStyle(
-                fontSize: 10,
+                fontSize: 9,
                 fontWeight: FontWeight.w600,
                 color: isSelected
                     ? const Color(0xFF3B82F6)
@@ -248,6 +203,39 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       MaterialPageRoute(
         builder: (context) => const QuestReportScreen(),
         fullscreenDialog: true,
+      ),
+    );
+  }
+}
+
+/// Home content widget - displayed when tab 0 is selected
+class _HomeContent extends StatelessWidget {
+  const _HomeContent();
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.fromLTRB(24, 24, 24, 120),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // プレイヤーヘッダー（レベル、XP、ゴールド）
+            const PlayerHeader(),
+            const SizedBox(height: 24),
+
+            // 日記入力カード（メイン機能）
+            const DiaryInputCard(),
+            const SizedBox(height: 24),
+
+            // 統計情報（クエスト、ストリーク、フォーカス）
+            const StatsRow(),
+            const SizedBox(height: 24),
+
+            // スピリットバディのメッセージ
+            const SpiritBuddyMessage(),
+          ],
+        ),
       ),
     );
   }
