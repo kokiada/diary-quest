@@ -17,6 +17,7 @@ class QuestReportScreen extends ConsumerStatefulWidget {
 class _QuestReportScreenState extends ConsumerState<QuestReportScreen>
     with SingleTickerProviderStateMixin {
   final SpeechService _speechService = SpeechService();
+  final TextEditingController _textController = TextEditingController();
   late AnimationController _pulseController;
   late Animation<double> _pulseAnimation;
   bool _isInitialized = false;
@@ -43,6 +44,7 @@ class _QuestReportScreenState extends ConsumerState<QuestReportScreen>
   void dispose() {
     _pulseController.dispose();
     _speechService.dispose();
+    _textController.dispose();
     super.dispose();
   }
 
@@ -55,7 +57,7 @@ class _QuestReportScreenState extends ConsumerState<QuestReportScreen>
       appBar: AppBar(
         title: const Text('クエスト報告'),
         actions: [
-          if (analysisState.transcript.isNotEmpty && !analysisState.isAnalyzing)
+          if (_textController.text.trim().isNotEmpty && !analysisState.isAnalyzing)
             TextButton(onPressed: _submitReport, child: const Text('分析')),
         ],
       ),
@@ -85,6 +87,14 @@ class _QuestReportScreenState extends ConsumerState<QuestReportScreen>
   }
 
   Widget _buildTranscriptArea(QuestAnalysisState state) {
+    // 音声認識の結果をテキストフィールドに反映
+    if (state.transcript.isNotEmpty && _textController.text != state.transcript) {
+      _textController.text = state.transcript;
+      _textController.selection = TextSelection.fromPosition(
+        TextPosition(offset: _textController.text.length),
+      );
+    }
+
     return Container(
       margin: const EdgeInsets.all(16),
       padding: const EdgeInsets.all(16),
@@ -94,25 +104,25 @@ class _QuestReportScreenState extends ConsumerState<QuestReportScreen>
         border: Border.all(
           color: state.isRecording
               ? AppColors.secondary.withValues(alpha: 0.5)
-              : AppColors.surfaceLight.withValues(alpha: 0.3),
+              : (_textController.text.isNotEmpty
+                  ? AppColors.primary
+                  : AppColors.surfaceLight.withValues(alpha: 0.3)),
           width: 2,
         ),
       ),
-      child: state.transcript.isEmpty
+      child: _textController.text.isEmpty
           ? Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Icon(
-                    Icons.mic,
+                    Icons.edit_note,
                     size: 64,
                     color: AppColors.textSecondary.withValues(alpha: 0.5),
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    _isInitialized
-                        ? 'マイクボタンを押して\n今日の出来事を話してください'
-                        : '音声認識を初期化中...',
+                    '今日の冒険を記録しよう\n\n声で話すか、テキストで入力できます',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       color: AppColors.textSecondary.withValues(alpha: 0.7),
@@ -122,11 +132,24 @@ class _QuestReportScreenState extends ConsumerState<QuestReportScreen>
                 ],
               ),
             )
-          : SingleChildScrollView(
-              child: Text(
-                state.transcript,
-                style: Theme.of(context).textTheme.bodyLarge,
+          : TextField(
+              controller: _textController,
+              maxLines: null,
+              maxLength: 500,
+              decoration: const InputDecoration(
+                border: InputBorder.none,
+                counterText: '',
+                hintText: '今日何をした？何を感じた？\n\n例：新しいプログラミング言語を学び始めた。最初は難しかったけど、基礎的な文法が理解できて嬉しい。',
+                hintStyle: TextStyle(color: AppColors.textSecondary),
               ),
+              style: Theme.of(context).textTheme.bodyLarge,
+              onChanged: (value) {
+                // テキストが変更されたらstateも更新
+                if (value != state.transcript) {
+                  ref.read(questAnalysisProvider.notifier).updateTranscript(value);
+                }
+                setState(() {}); // ボーダーの色更新
+              },
             ),
     );
   }
@@ -207,7 +230,7 @@ class _QuestReportScreenState extends ConsumerState<QuestReportScreen>
         const SizedBox(height: 8),
 
         Text(
-          state.isRecording ? '停止' : '録音開始',
+          state.isRecording ? 'タップで停止' : 'タップで録音開始',
           style: Theme.of(context).textTheme.bodyMedium,
         ),
       ],
@@ -334,7 +357,7 @@ class _QuestReportScreenState extends ConsumerState<QuestReportScreen>
     );
   }
 
-  Widget _buildExpBreakdown(result) {
+  Widget _buildExpBreakdown(dynamic result) {
     final earnedExp = result.earnedExp as Map<GrowthParameter, int>;
     if (earnedExp.isEmpty) return const SizedBox.shrink();
 
@@ -398,7 +421,6 @@ class _QuestReportScreenState extends ConsumerState<QuestReportScreen>
   }
 
   void _toggleRecording() {
-    final notifier = ref.read(questAnalysisProvider.notifier);
     final state = ref.read(questAnalysisProvider);
 
     if (state.isRecording) {
