@@ -1,0 +1,6 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <!-- Placeholder for knight (騎士) -->
+  <rect width="512" height="512" fill="#9B59B6" opacity="0.1"/>
+  <text x="256" y="256" font-family="Arial" font-size="48" text-anchor="middle" fill="#9B59B6">騎士</text>
+  <text x="256" y="320" font-family="Arial" font-size="24" text-anchor="middle" fill="#666">Knight</text>
+</svg>

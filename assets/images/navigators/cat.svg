@@ -1,0 +1,6 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <!-- Placeholder for cat (猫) -->
+  <rect width="512" height="512" fill="#F39C12" opacity="0.1"/>
+  <text x="256" y="256" font-family="Arial" font-size="48" text-anchor="middle" fill="#F39C12">猫</text>
+  <text x="256" y="320" font-family="Arial" font-size="24" text-anchor="middle" fill="#666">Cat</text>
+</svg>

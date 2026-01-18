@@ -1,0 +1,12 @@
+{
+  "firestore": {
+    "host": "localhost",
+    "port": 8080,
+    "ssl": false
+  },
+  "auth": {
+    "host": "localhost",
+    "port": 9099,
+    "ssl": false
+  }
+}
