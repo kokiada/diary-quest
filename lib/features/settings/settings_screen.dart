@@ -4,6 +4,7 @@ import '../../core/constants/app_colors.dart';
 import '../../providers/auth_provider.dart';
 import '../../models/user.dart';
 import '../auth/login_screen.dart';
+import 'widgets/edit_profile_dialog.dart';
 
 /// 設定画面
 class SettingsScreen extends ConsumerWidget {
@@ -79,8 +80,14 @@ class SettingsScreen extends ConsumerWidget {
           ),
           IconButton(
             icon: const Icon(Icons.edit),
-            onPressed: () {
-              // TODO: プロフィール編集
+            onPressed: () async {
+              final result = await showDialog<bool>(
+                context: context,
+                builder: (context) => const EditProfileDialog(),
+              );
+              if (result == true) {
+                // プロフィール更新成功
+              }
             },
           ),
         ],
