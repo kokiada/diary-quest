@@ -26,10 +26,11 @@ class DefaultFirebaseOptions {
   }
 
   /// Web用Firebase設定
-  /// FIXME: 実際のWeb用Firebaseコンソールの値に置き換えてください
+  /// Firebase Console > プロジェクト設定 > 全般 > マイアプリ > Webアプリ
+  /// から実際の値を取得してください
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyCZhT91b15XNAq5sqo4c7vMr0Axsr2Da2A', // 便宜上iOSと同じキーを使用
-    appId: '1:142521310459:web:placeholder',
+    apiKey: 'AIzaSyCZhT91b15XNAq5sqo4c7vMr0Axsr2Da2A',
+    appId: '1:142521310459:web:YOUR_WEB_APP_ID',
     messagingSenderId: '142521310459',
     projectId: 'diaryquest-900b2',
     authDomain: 'diaryquest-900b2.firebaseapp.com',

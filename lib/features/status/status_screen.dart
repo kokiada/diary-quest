@@ -1,15 +1,35 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/parameters.dart';
+import '../../providers/user_provider.dart';
 import '../job_skill/job_skill_screen.dart';
 
 /// ステータス画面
-class StatusScreen extends StatelessWidget {
+class StatusScreen extends ConsumerWidget {
   const StatusScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final userState = ref.watch(userProvider);
+    final parameterExp = userState.user?.parameterExp ?? {};
+
+    // カテゴリごとの平均レベルを計算
+    final categoryValues = ParameterCategory.values.map((category) {
+      final categoryInfo = Parameters.categories[category]!;
+      if (categoryInfo.parameters.isEmpty) return 0.0;
+
+      final paramLevels = categoryInfo.parameters.map((param) {
+        final exp = parameterExp[param] ?? 0;
+        return (exp / 20 * 100).clamp(0, 100).toDouble();
+      }).toList();
+
+      return paramLevels.isEmpty
+          ? 0.0
+          : paramLevels.reduce((a, b) => a + b) / paramLevels.length;
+    }).toList();
+
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -19,11 +39,11 @@ class StatusScreen extends StatelessWidget {
           const SizedBox(height: 24),
 
           // レーダーチャート
-          _buildRadarChartCard(context),
+          _buildRadarChartCard(context, categoryValues),
           const SizedBox(height: 24),
 
           // カテゴリ別詳細
-          _buildCategoryDetails(context),
+          _buildCategoryDetails(context, parameterExp),
           const SizedBox(height: 24),
 
           // ジョブ表示
@@ -33,7 +53,7 @@ class StatusScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildRadarChartCard(BuildContext context) {
+  Widget _buildRadarChartCard(BuildContext context, List<double> categoryValues) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -76,13 +96,9 @@ class StatusScreen extends StatelessWidget {
                 },
                 dataSets: [
                   RadarDataSet(
-                    dataEntries: [
-                      const RadarEntry(value: 65), // 思考
-                      const RadarEntry(value: 45), // 実行
-                      const RadarEntry(value: 70), // 対人
-                      const RadarEntry(value: 55), // 自制
-                      const RadarEntry(value: 40), // 挑戦
-                    ],
+                    dataEntries: categoryValues
+                        .map((value) => RadarEntry(value: value))
+                        .toList(),
                     fillColor: AppColors.primary.withValues(alpha: 0.3),
                     borderColor: AppColors.primary,
                     borderWidth: 2,
@@ -96,29 +112,35 @@ class StatusScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildCategoryDetails(BuildContext context) {
+  Widget _buildCategoryDetails(BuildContext context, Map<GrowthParameter, int> parameterExp) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text('カテゴリ別成長', style: Theme.of(context).textTheme.titleLarge),
         const SizedBox(height: 16),
         ...Parameters.categories.entries.map((entry) {
-          return _buildCategoryCard(context, entry.value);
+          return _buildCategoryCard(context, entry.value, parameterExp);
         }),
       ],
     );
   }
 
-  Widget _buildCategoryCard(BuildContext context, CategoryInfo category) {
-    // デモ用のダミー値
-    final demoValues = {
-      ParameterCategory.tactics: 65,
-      ParameterCategory.execution: 45,
-      ParameterCategory.social: 70,
-      ParameterCategory.mastery: 55,
-      ParameterCategory.frontier: 40,
-    };
-    final value = demoValues[category.category] ?? 50;
+  Widget _buildCategoryCard(BuildContext context, CategoryInfo category, Map<GrowthParameter, int> parameterExp) {
+    // カテゴリに属するパラメータの平均レベルを計算
+    if (category.parameters.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    // パラメータごとの経験値からレベルを計算（0-100）
+    final paramLevels = category.parameters.map((param) {
+      final exp = parameterExp[param] ?? 0;
+      // 経験値をレベルに変換（0-100の範囲に正規化）
+      return (exp / 20 * 100).clamp(0, 100).toInt();
+    }).toList();
+
+    final value = paramLevels.isEmpty
+        ? 0
+        : paramLevels.reduce((a, b) => a + b) ~/ paramLevels.length;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
