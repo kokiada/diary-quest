@@ -5,6 +5,7 @@ import '../../providers/auth_provider.dart';
 import '../../models/user.dart';
 import '../auth/login_screen.dart';
 import 'widgets/edit_profile_dialog.dart';
+import 'widgets/language_settings.dart';
 
 /// 設定画面
 class SettingsScreen extends ConsumerWidget {
@@ -189,7 +190,11 @@ class SettingsScreen extends ConsumerWidget {
             title: '言語',
             subtitle: '日本語',
             onTap: () {
-              // TODO: 言語設定
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => const LanguageSettings(),
+                ),
+              );
             },
           ),
           const Divider(),
