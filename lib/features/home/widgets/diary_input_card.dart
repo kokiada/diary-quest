@@ -70,7 +70,7 @@ class DiaryInputCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Spacer(),
+                    const SizedBox(height: 60),
                     // メインタイトル
                     Text(
                       '今日の冒険を記録しよう',
