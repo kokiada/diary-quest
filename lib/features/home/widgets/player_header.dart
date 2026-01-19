@@ -105,7 +105,7 @@ class PlayerHeader extends ConsumerWidget {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              'XP',
+                              'EXP',
                               style: Theme.of(context).textTheme.bodySmall
                                   ?.copyWith(
                                     fontSize: 10,
@@ -205,7 +205,7 @@ class PlayerHeader extends ConsumerWidget {
                     ),
                   ),
                   Text(
-                    'GOLD',
+                    'ゴールド',
                     style: TextStyle(
                       fontSize: 9,
                       fontWeight: FontWeight.w500,

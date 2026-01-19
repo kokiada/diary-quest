@@ -116,7 +116,7 @@ class _DiaryInputCardState extends ConsumerState<DiaryInputCard> {
                           ),
                           const SizedBox(width: 4),
                           Text(
-                            'Whispering Woods',
+                            'ささやきの森',
                             style: Theme.of(context).textTheme.bodySmall
                                 ?.copyWith(
                                   color: Colors.white,
@@ -130,7 +130,7 @@ class _DiaryInputCardState extends ConsumerState<DiaryInputCard> {
                     const SizedBox(height: 80),
                     // タイトルとサブタイトル
                     Text(
-                      'Campfire Base',
+                      'キャンプ拠点',
                       style: Theme.of(context).textTheme.headlineMedium
                           ?.copyWith(
                             color: Colors.white,
@@ -141,7 +141,7 @@ class _DiaryInputCardState extends ConsumerState<DiaryInputCard> {
                     Row(
                       children: [
                         Text(
-                          'Sanctuary Level 1',
+                          '聖域 レベル1',
                           style: Theme.of(context).textTheme.bodyMedium
                               ?.copyWith(
                                 color: Colors.blue.shade100,

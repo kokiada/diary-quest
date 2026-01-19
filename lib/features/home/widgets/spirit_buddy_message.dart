@@ -83,7 +83,7 @@ class SpiritBuddyMessage extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'SPIRIT BUDDY',
+                      'スピリット',
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         fontSize: 12,
                         fontWeight: FontWeight.bold,
@@ -92,7 +92,7 @@ class SpiritBuddyMessage extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      'Just now',
+                      'たった今',
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         fontSize: 10,
                         color: const Color(0xFFCBD5E1),
@@ -102,7 +102,7 @@ class SpiritBuddyMessage extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Welcome back! Ready to report your progress for today?',
+                  'おかえりなさい！今日の進捗を記録しますか？',
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     fontSize: 14,
                     color: const Color(0xFF475569),
