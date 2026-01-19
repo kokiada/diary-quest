@@ -8,6 +8,8 @@ import '../core/constants/parameters.dart';
 import '../repositories/user_repository.dart';
 import '../repositories/quest_repository.dart';
 import 'auth_provider.dart';
+import '../widgets/skill_unlock_dialog.dart';
+import '../widgets/job_unlock_dialog.dart';
 
 /// ユーザーリポジトリのProvider
 final userRepositoryProvider = Provider<UserRepository>((ref) {
@@ -186,44 +188,11 @@ class UserNotifier extends StateNotifier<UserState> {
     final odId = _odId;
     if (odId == null) return;
 
-    // チェックするスキルとジョブの定義
-    final allSkills = <SkillDefinition>[
-      SkillDefinition(
-        id: 'critical_thinking',
-        nameJa: '批判的思考',
-        description: '物事を多角的に分析し、本質を見極める力がついた',
-        requiredExp: {'analysis': 30, 'speed': 20},
-        category: SkillCategory.tactics,
-      ),
-      SkillDefinition(
-        id: 'fast_learner',
-        nameJa: '速習',
-        description: '新しいことを素早く習得できるようになった',
-        requiredExp: {'analysis': 50, 'speed': 30},
-        category: SkillCategory.tactics,
-      ),
-      // TODO: さらにスキルを追加
-    ];
+    // チェックするスキル定義（Skills.all から使用）
+    final allSkills = Skills.all;
 
-    final allJobs = <JobDefinition>[
-      JobDefinition(
-        id: 'scholar',
-        nameJa: '学者',
-        description: '知識を追求する道を選んだ。分析力がさらに向上する',
-        requiredLevel: 2,
-        requiredExp: {'analysis': 100},
-        category: JobCategory.tactics,
-      ),
-      JobDefinition(
-        id: 'strategist',
-        nameJa: '戦略家',
-        description: '戦略的な思考に長ける。全パラメータバランス型',
-        requiredLevel: 3,
-        requiredExp: {'analysis': 200, 'speed': 150, 'empathy': 100},
-        category: JobCategory.tactics,
-      ),
-      // TODO: さらにジョブを追加
-    ];
+    // チェックするジョブ定義（Jobs.all から使用）
+    final allJobs = Jobs.all;
 
     // 新しく解禁されたスキルをチェック
     final newSkills = <SkillDefinition>[];
@@ -259,13 +228,19 @@ class UserNotifier extends StateNotifier<UserState> {
 
   /// スキルの解禁条件を満たしているかチェック
   bool _canUnlockSkill(UserModel user, SkillDefinition skill) {
-    for (final entry in skill.requiredExp.entries) {
-      final currentExp = user.parameterExp[entry.key] ?? 0;
-      if (currentExp < entry.value) {
-        return false;
+    // スキルの解禁条件: カテゴリの合計経験値が requiredTotalExp を超えているか
+    final categoryString = skill.category;
+
+    // カテゴリに属するパラメータの経験値を合計
+    int categoryTotalExp = 0;
+    for (final param in GrowthParameter.values) {
+      final paramCategory = Parameters.getCategoryFor(param);
+      if (paramCategory.name == categoryString) {
+        categoryTotalExp += user.parameterExp[param] ?? 0;
       }
     }
-    return true;
+
+    return categoryTotalExp >= skill.requiredTotalExp;
   }
 
   /// ジョブが解禁済みかチェック
@@ -275,12 +250,15 @@ class UserNotifier extends StateNotifier<UserState> {
 
   /// ジョブの解禁条件を満たしているかチェック
   bool _canUnlockJob(UserModel user, JobDefinition job) {
-    if (user.baseLevel < job.requiredLevel) {
-      return false;
-    }
+    // ジョブの解禁条件: requiredParams で指定されたパラメータの経験値をチェック
+    for (final entry in job.requiredParams.entries) {
+      // パラメータ名を GrowthParameter に変換
+      final param = GrowthParameter.values.firstWhere(
+        (p) => p.name == entry.key,
+        orElse: () => GrowthParameter.analysis,
+      );
 
-    for (final entry in job.requiredExp.entries) {
-      final currentExp = user.parameterExp[entry.key] ?? 0;
+      final currentExp = user.parameterExp[param] ?? 0;
       if (currentExp < entry.value) {
         return false;
       }

@@ -78,7 +78,7 @@ class _JobUnlockDialogState extends State<JobUnlockDialog>
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Container(
+                SizedBox(
                   width: 100,
                   height: 100,
                   child: Lottie.asset(

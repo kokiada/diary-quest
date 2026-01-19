@@ -2,24 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:diaryquest/features/home/home_screen.dart';
 import 'package:diaryquest/providers/user_provider.dart';
-import 'package:riverpod/riverpod.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:diaryquest/models/user.dart';
+import 'package:diaryquest/repositories/user_repository.dart';
+import 'package:diaryquest/repositories/quest_repository.dart';
 
 void main() {
   group('HomeScreen', () {
-    late Widget widget;
-
-    setUp(() {
-      widget = const ProviderScope(
-        child: MaterialApp(
-          home: HomeScreen(),
-        ),
-      );
-    });
-
     testWidgets('ユーザーがいない場合にログイン画面を表示する', (WidgetTester tester) async {
       // Act
-      await tester.pumpWidget(widget);
+      await tester.pumpWidget(
+        const ProviderScope(
+          child: MaterialApp(
+            home: HomeScreen(),
+          ),
+        ),
+      );
       await tester.pumpAndSettle();
 
       // Assert
@@ -30,26 +28,32 @@ void main() {
       // Arrange
       final testUser = UserModel(
         id: 'test-user-id',
-        name: 'テストユーザー',
+        displayName: 'テストユーザー',
         email: 'test@example.com',
         baseLevel: 1,
         totalExp: 100,
         parameterExp: {},
         unlockedSkills: [],
         unlockedJobs: [],
-        selectedNavigator: NavigatorType.aniki,
+        selectedNavigator: NavigatorType.bigBrother,
         createdAt: DateTime.now(),
-        updatedAt: DateTime.now(),
+        lastActiveAt: DateTime.now(),
       );
 
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
-            userProvider.overrideWithValue(
-              AsyncValue.data(UserState(user: testUser)),
+            userProvider.overrideWith(
+              (ref) => UserNotifier(
+                UserRepository(),
+                QuestRepository(),
+                'test-user-id',
+              )..state = UserState(user: testUser),
             ),
           ],
-          child: widget,
+          child: const MaterialApp(
+            home: HomeScreen(),
+          ),
         ),
       );
       await tester.pumpAndSettle();
@@ -63,26 +67,32 @@ void main() {
       // Arrange
       final testUser = UserModel(
         id: 'test-user-id',
-        name: 'テストユーザー',
+        displayName: 'テストユーザー',
         email: 'test@example.com',
         baseLevel: 1,
         totalExp: 100,
         parameterExp: {},
         unlockedSkills: [],
         unlockedJobs: [],
-        selectedNavigator: NavigatorType.aniki,
+        selectedNavigator: NavigatorType.bigBrother,
         createdAt: DateTime.now(),
-        updatedAt: DateTime.now(),
+        lastActiveAt: DateTime.now(),
       );
 
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
-            userProvider.overrideWithValue(
-              AsyncValue.data(UserState(user: testUser)),
+            userProvider.overrideWith(
+              (ref) => UserNotifier(
+                UserRepository(),
+                QuestRepository(),
+                'test-user-id',
+              )..state = UserState(user: testUser),
             ),
           ],
-          child: widget,
+          child: const MaterialApp(
+            home: HomeScreen(),
+          ),
         ),
       );
       await tester.pumpAndSettle();
@@ -96,26 +106,32 @@ void main() {
       // Arrange
       final testUser = UserModel(
         id: 'test-user-id',
-        name: 'テストユーザー',
+        displayName: 'テストユーザー',
         email: 'test@example.com',
         baseLevel: 1,
         totalExp: 100,
         parameterExp: {},
         unlockedSkills: [],
         unlockedJobs: [],
-        selectedNavigator: NavigatorType.aniki,
+        selectedNavigator: NavigatorType.bigBrother,
         createdAt: DateTime.now(),
-        updatedAt: DateTime.now(),
+        lastActiveAt: DateTime.now(),
       );
 
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
-            userProvider.overrideWithValue(
-              AsyncValue.data(UserState(user: testUser)),
+            userProvider.overrideWith(
+              (ref) => UserNotifier(
+                UserRepository(),
+                QuestRepository(),
+                'test-user-id',
+              )..state = UserState(user: testUser),
             ),
           ],
-          child: widget,
+          child: const MaterialApp(
+            home: HomeScreen(),
+          ),
         ),
       );
       await tester.pumpAndSettle();

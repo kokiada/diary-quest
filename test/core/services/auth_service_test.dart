@@ -1,6 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:diaryquest/core/services/auth_service.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 
 void main() {
   group('AuthService', () {
@@ -15,9 +14,9 @@ void main() {
         expect(authService, isNotNull);
       });
 
-      test('getCurrentUserがnullを返す（未認証状態）', () {
+      test('currentUserがnullを返す（未認証状態）', () {
         // TODO: 実際のFirebase Authを使ったテストを実装
-        expect(authService.getCurrentUser(), isNull);
+        expect(authService.currentUser, isNull);
       });
     });
 

@@ -85,7 +85,7 @@ class _SkillUnlockDialogState extends State<SkillUnlockDialog>
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Container(
+                SizedBox(
                   width: 100,
                   height: 100,
                   child: Lottie.asset(

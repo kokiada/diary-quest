@@ -1,15 +1,13 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:flutter/material.dart';
-import 'package:diaryquest/main.dart';
-import 'package:diaryquest/providers/user_provider.dart';
-import 'package:diaryquest/models/user.dart';
-import 'package:riverpod/riverpod.dart';
+import 'package:diaryquest/app.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 void main() {
-  group('Integration Tests', () {
-    final integrationTest = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
+  group('Integration Tests', () {
     group('Quest Flow', () {
       testWidgets('ログインからクエスト記録までのフロー', (WidgetTester tester) async {
         // Given - アプリ起動
@@ -54,27 +52,12 @@ void main() {
         await tester.pumpWidget(const ProviderScope(child: DiaryQuestApp()));
         await tester.pumpAndSettle();
 
-        // モックユーザーデータを設定
-        final highLevelUser = UserModel(
-          id: 'test-user-id',
-          name: 'テストユーザー',
-          email: 'test@example.com',
-          baseLevel: 1,
-          totalExp: 95, // レベルアップ直前
-          parameterExp: {},
-          unlockedSkills: [],
-          unlockedJobs: [],
-          selectedNavigator: NavigatorType.aniki,
-          createdAt: DateTime.now(),
-          updatedAt: DateTime.now(),
-        );
-
         // When - 十分な経験値を獲得
         // このテストでは実際のデータ更新をシミュレート
         await tester.pumpAndSettle();
 
         // Then - レベルアップダイアログが表示される
-        expect(find.text('レベルアップ！'), findsAtLeastNWidgets(1, 0));
+        expect(find.text('レベルアップ！'), findsWidgets);
       });
     });
 

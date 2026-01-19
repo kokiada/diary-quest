@@ -145,7 +145,7 @@ class _BaseLevelupDialogState extends State<BaseLevelupDialog>
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Container(
+                SizedBox(
                   width: 120,
                   height: 120,
                   child: Lottie.asset(
