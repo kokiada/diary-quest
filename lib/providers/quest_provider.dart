@@ -27,14 +27,6 @@ final todayQuestsProvider = FutureProvider<List<QuestEntry>>((ref) async {
   return repository.getTodayQuests(authState.firebaseUser!.uid);
 });
 
-/// 週間クエスト一覧
-final weeklyQuestsProvider = FutureProvider<List<QuestEntry>>((ref) async {
-  final authState = ref.watch(authProvider);
-  if (!authState.isAuthenticated) return [];
-
-  final repository = ref.watch(questRepositoryProvider);
-  return repository.getWeeklyQuests(authState.firebaseUser!.uid);
-});
 
 /// クエスト分析状態
 class QuestAnalysisState {

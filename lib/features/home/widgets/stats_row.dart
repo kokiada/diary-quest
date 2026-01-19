@@ -16,7 +16,7 @@ class StatsRow extends ConsumerWidget {
           child: _StatCard(
             label: 'クエスト',
             value: '${userState.completedQuests}',
-            suffix: '/8',
+            suffix: '/∞',
             color: const Color(0xFF10B981),
             bgColor: const Color(0xFFECFDF5),
           ),

@@ -1,15 +1,10 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter/material.dart';
 import '../models/user.dart';
 import '../models/quest_entry.dart';
-import '../models/skill.dart';
-import '../models/job.dart';
 import '../core/constants/parameters.dart';
 import '../repositories/user_repository.dart';
 import '../repositories/quest_repository.dart';
 import 'auth_provider.dart';
-import '../widgets/skill_unlock_dialog.dart';
-import '../widgets/job_unlock_dialog.dart';
 
 /// ユーザーリポジトリのProvider
 final userRepositoryProvider = Provider<UserRepository>((ref) {
@@ -20,9 +15,6 @@ final userRepositoryProvider = Provider<UserRepository>((ref) {
 final questRepositoryProvider = Provider<QuestRepository>((ref) {
   return QuestRepository();
 });
-
-/// グローバルキー for dialog navigation
-final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 /// ユーザー状態管理Provider
 final userProvider = StateNotifierProvider<UserNotifier, UserState>((ref) {
@@ -64,10 +56,10 @@ class UserState {
     );
   }
 
-  // UI用のヘルパープロパティ
+  // UI用のヘルパープパティ
   int get level => user?.baseLevel ?? 1;
   int get gold => user?.totalExp ?? 0;
-  String get jobTitle => user?.currentJob ?? 'STRATEGIST';
+  String get jobTitle => '冒険者'; // MVPシンプルな表示
 
   /// 現在のレベルでのXP進捗（0.0〜1.0）
   double get xpProgress {
@@ -178,175 +170,58 @@ class UserNotifier extends StateNotifier<UserState> {
       for (var entry in expMap.entries) entry.key.name: entry.value,
     };
     await _repository.addExperience(odId, expMapString, totalExp);
-
-    // スキルとジョブの解禁チェック
-    await _checkUnlocks(updatedUser);
-  }
-
-  /// スキルとジョブの解禁チェック
-  Future<void> _checkUnlocks(UserModel user) async {
-    final odId = _odId;
-    if (odId == null) return;
-
-    // チェックするスキル定義（Skills.all から使用）
-    final allSkills = Skills.all;
-
-    // チェックするジョブ定義（Jobs.all から使用）
-    final allJobs = Jobs.all;
-
-    // 新しく解禁されたスキルをチェック
-    final newSkills = <SkillDefinition>[];
-    for (final skill in allSkills) {
-      if (!_isSkillUnlocked(user, skill) && _canUnlockSkill(user, skill)) {
-        newSkills.add(skill);
-      }
-    }
-
-    // 新しく解禁されたジョブをチェック
-    final newJobs = <JobDefinition>[];
-    for (final job in allJobs) {
-      if (!_isJobUnlocked(user, job) && _canUnlockJob(user, job)) {
-        newJobs.add(job);
-      }
-    }
-
-    // もし新しいスキルまたはジョブが解禁されたら
-    if (newSkills.isNotEmpty || newJobs.isNotEmpty) {
-      // UIに通知するためにグローバルナビゲーターを使用
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (navigatorKey.currentContext != null) {
-          _showUnlockDialogs(newSkills, newJobs);
-        }
-      });
-    }
-  }
-
-  /// スキルが解禁済みかチェック
-  bool _isSkillUnlocked(UserModel user, SkillDefinition skill) {
-    return user.unlockedSkills.contains(skill.id);
-  }
-
-  /// スキルの解禁条件を満たしているかチェック
-  bool _canUnlockSkill(UserModel user, SkillDefinition skill) {
-    // スキルの解禁条件: カテゴリの合計経験値が requiredTotalExp を超えているか
-    final categoryString = skill.category;
-
-    // カテゴリに属するパラメータの経験値を合計
-    int categoryTotalExp = 0;
-    for (final param in GrowthParameter.values) {
-      final paramCategory = Parameters.getCategoryFor(param);
-      if (paramCategory.name == categoryString) {
-        categoryTotalExp += user.parameterExp[param] ?? 0;
-      }
-    }
-
-    return categoryTotalExp >= skill.requiredTotalExp;
-  }
-
-  /// ジョブが解禁済みかチェック
-  bool _isJobUnlocked(UserModel user, JobDefinition job) {
-    return user.unlockedJobs.contains(job.id);
-  }
-
-  /// ジョブの解禁条件を満たしているかチェック
-  bool _canUnlockJob(UserModel user, JobDefinition job) {
-    // ジョブの解禁条件: requiredParams で指定されたパラメータの経験値をチェック
-    for (final entry in job.requiredParams.entries) {
-      // パラメータ名を GrowthParameter に変換
-      final param = GrowthParameter.values.firstWhere(
-        (p) => p.name == entry.key,
-        orElse: () => GrowthParameter.analysis,
-      );
-
-      final currentExp = user.parameterExp[param] ?? 0;
-      if (currentExp < entry.value) {
-        return false;
-      }
-    }
-    return true;
-  }
-
-  /// 解禁ダイアログを表示
-  void _showUnlockDialogs(List<SkillDefinition> newSkills, List<JobDefinition> newJobs) {
-    // スキル解禁ダイアログを表示
-    for (final skill in newSkills) {
-      showDialog(
-        context: navigatorKey.currentContext!,
-        barrierDismissible: false,
-        builder: (context) => SkillUnlockDialog(skill: skill),
-      );
-    }
-
-    // ジョブ解禁ダイアログを表示
-    for (final job in newJobs) {
-      showDialog(
-        context: navigatorKey.currentContext!,
-        barrierDismissible: false,
-        builder: (context) => JobUnlockDialog(job: job),
-      );
-    }
   }
 
   /// 連続日数を更新
-  Future<void> updateConsecutiveDays() async {
+  Future<void> updateConsecutiveDays(int days) async {
     final odId = _odId;
     final user = state.user;
     if (odId == null || user == null) return;
 
-    final today = DateTime.now();
-    final lastActive = user.lastActiveAt;
-    final daysDiff = today.difference(lastActive).inDays;
-
-    int newDays;
-    if (daysDiff == 1) {
-      // 連続
-      newDays = user.consecutiveDays + 1;
-    } else if (daysDiff == 0) {
-      // 同日
-      newDays = user.consecutiveDays;
-    } else {
-      // リセット
-      newDays = 1;
-    }
-
-    final updatedUser = user.copyWith(
-      consecutiveDays: newDays,
-      lastActiveAt: today,
-    );
+    final updatedUser = user.copyWith(consecutiveDays: days);
     state = state.copyWith(user: updatedUser);
 
-    await _repository.updateConsecutiveDays(odId, newDays);
-
-    // 拠点レベルの更新チェック
-    await _checkBaseLevel(updatedUser);
+    await _repository.updateConsecutiveDays(odId, days);
   }
 
-  /// 拠点レベルのチェック
-  Future<void> _checkBaseLevel(UserModel user) async {
+  /// 拠点レベルを更新
+  Future<void> updateBaseLevel(int level) async {
     final odId = _odId;
-    if (odId == null) return;
+    final user = state.user;
+    if (odId == null || user == null) return;
 
-    final totalExp = user.totalExp;
-    final currentLevel = user.baseLevel;
+    final updatedUser = user.copyWith(baseLevel: level);
+    state = state.copyWith(user: updatedUser);
 
-    int newLevel;
-    if (totalExp >= 2000) {
-      newLevel = 5; // 城
-    } else if (totalExp >= 1000) {
-      newLevel = 4; // 館
-    } else if (totalExp >= 500) {
-      newLevel = 3; // 家
-    } else if (totalExp >= 200) {
-      newLevel = 2; // 小屋
-    } else {
-      newLevel = 1; // テント
-    }
+    await _repository.updateBaseLevel(odId, level);
+  }
 
-    if (newLevel > currentLevel) {
-      final updatedUser = user.copyWith(baseLevel: newLevel);
-      state = state.copyWith(user: updatedUser);
-      await _repository.updateBaseLevel(odId, newLevel);
-      // TODO: 拠点進化アニメーションをトリガー
-    }
+  /// 表示名を更新
+  Future<void> updateDisplayName(String displayName) async {
+    final odId = _odId;
+    final user = state.user;
+    if (odId == null || user == null) return;
+
+    final updatedUser = user.copyWith(displayName: displayName);
+    state = state.copyWith(user: updatedUser);
+
+    await _repository.updateDisplayName(odId, displayName);
+  }
+
+  /// ナビゲーターを更新
+  Future<void> updateNavigator(NavigatorType navigator) async {
+    final odId = _odId;
+    final user = state.user;
+    if (odId == null || user == null) return;
+
+    final updatedUser = user.copyWith(selectedNavigator: navigator);
+    state = state.copyWith(user: updatedUser);
+
+    await _repository.updateNavigator(odId, navigator);
+  }
+
+  /// エラーをクリア
+  void clearError() {
+    state = state.copyWith(error: null);
   }
 }

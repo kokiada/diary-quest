@@ -114,7 +114,7 @@ class PlayerHeader extends ConsumerWidget {
                                   ),
                             ),
                             Text(
-                              '1,200 / 2,000',
+                              '${userState.gold} / ${_getNextLevelXP(userState.level)}',
                               style: Theme.of(context).textTheme.bodySmall
                                   ?.copyWith(
                                     fontSize: 10,
@@ -221,5 +221,12 @@ class PlayerHeader extends ConsumerWidget {
         ),
       ],
     );
+  }
+
+  /// 次のレベルまでに必要なXPを計算
+  int _getNextLevelXP(int currentLevel) {
+    final levelThresholds = [0, 200, 500, 1000, 2000];
+    if (currentLevel >= 5) return levelThresholds.last;
+    return levelThresholds[currentLevel];
   }
 }
