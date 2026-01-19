@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
 import '../models/skill.dart';
 import '../core/constants/app_colors.dart';
 
@@ -84,6 +85,16 @@ class _SkillUnlockDialogState extends State<SkillUnlockDialog>
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
+                Container(
+                  width: 100,
+                  height: 100,
+                  child: Lottie.asset(
+                    'assets/animations/skill_unlock.json',
+                    repeat: false,
+                    fit: BoxFit.contain,
+                  ),
+                ),
+                const SizedBox(height: 8),
                 const Text(
                   '🎉',
                   style: TextStyle(fontSize: 48),

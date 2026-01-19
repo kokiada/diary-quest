@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
 import '../core/constants/app_colors.dart';
 
 /// ベースレベルアップダイアログ
@@ -144,6 +145,16 @@ class _BaseLevelupDialogState extends State<BaseLevelupDialog>
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
+                Container(
+                  width: 120,
+                  height: 120,
+                  child: Lottie.asset(
+                    'assets/animations/level_up.json',
+                    repeat: false,
+                    fit: BoxFit.contain,
+                  ),
+                ),
+                const SizedBox(height: 16),
                 Text(
                   _getBaseEmoji(widget.newLevel),
                   style: const TextStyle(fontSize: 64),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
 import '../models/job.dart';
 import '../core/constants/app_colors.dart';
 
@@ -77,6 +78,16 @@ class _JobUnlockDialogState extends State<JobUnlockDialog>
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
+                Container(
+                  width: 100,
+                  height: 100,
+                  child: Lottie.asset(
+                    'assets/animations/job_unlock.json',
+                    repeat: false,
+                    fit: BoxFit.contain,
+                  ),
+                ),
+                const SizedBox(height: 8),
                 const Text(
                   '⚔️',
                   style: TextStyle(fontSize: 48),
