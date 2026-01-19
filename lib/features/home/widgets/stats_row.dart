@@ -14,7 +14,7 @@ class StatsRow extends ConsumerWidget {
       children: [
         Expanded(
           child: _StatCard(
-            label: 'Quests',
+            label: 'クエスト',
             value: '${userState.completedQuests}',
             suffix: '/8',
             color: const Color(0xFF10B981),
@@ -24,7 +24,7 @@ class StatsRow extends ConsumerWidget {
         const SizedBox(width: 16),
         Expanded(
           child: _StatCard(
-            label: 'Streak',
+            label: '連続',
             value: '${userState.streak}',
             suffix: 'd',
             color: const Color(0xFFF59E0B),
@@ -34,7 +34,7 @@ class StatsRow extends ConsumerWidget {
         const SizedBox(width: 16),
         Expanded(
           child: _StatCard(
-            label: 'Focus',
+            label: '集中',
             value: '+${userState.focusBonus}',
             suffix: '%',
             color: const Color(0xFF3B82F6),
