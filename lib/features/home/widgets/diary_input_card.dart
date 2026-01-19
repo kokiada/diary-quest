@@ -1,24 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// 日記入力カード - ホーム画面のメイン機能
-class DiaryInputCard extends ConsumerStatefulWidget {
+class DiaryInputCard extends StatelessWidget {
   const DiaryInputCard({super.key});
-
-  @override
-  ConsumerState<DiaryInputCard> createState() => _DiaryInputCardState();
-}
-
-class _DiaryInputCardState extends ConsumerState<DiaryInputCard> {
-  final TextEditingController _controller = TextEditingController();
-  final FocusNode _focusNode = FocusNode();
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    _focusNode.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -86,100 +70,66 @@ class _DiaryInputCardState extends ConsumerState<DiaryInputCard> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // ロケーション表示
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 6,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.2),
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(
-                          color: Colors.white.withValues(alpha: 0.3),
-                          width: 1,
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.1),
-                            blurRadius: 10,
-                          ),
-                        ],
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(
-                            Icons.location_on,
-                            size: 16,
-                            color: Colors.white,
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            'ささやきの森',
-                            style: Theme.of(context).textTheme.bodySmall
-                                ?.copyWith(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 12,
-                                ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 80),
-                    // タイトルとサブタイトル
+                    const Spacer(),
+                    // メインタイトル
                     Text(
-                      'キャンプ拠点',
+                      '今日の冒険を記録しよう',
                       style: Theme.of(context).textTheme.headlineMedium
                           ?.copyWith(
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
                           ),
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 12),
+                    // 説明テキスト
+                    Text(
+                      'マイクボタンを押して、今日の出来事を話しかけよう',
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color: Colors.blue.shade100,
+                            fontWeight: FontWeight.w500,
+                          ),
+                    ),
+                    const SizedBox(height: 16),
+                    // インジケーター
                     Row(
                       children: [
-                        Text(
-                          '聖域 レベル1',
-                          style: Theme.of(context).textTheme.bodyMedium
-                              ?.copyWith(
-                                color: Colors.blue.shade100,
-                                fontWeight: FontWeight.w500,
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 6,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.2),
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(
+                              color: Colors.white.withValues(alpha: 0.3),
+                              width: 1,
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(
+                                Icons.mic,
+                                size: 14,
+                                color: Colors.white,
                               ),
-                        ),
-                        const SizedBox(width: 4),
-                        Icon(
-                          Icons.verified,
-                          size: 14,
-                          color: Colors.blue.shade100,
+                              const SizedBox(width: 6),
+                              Text(
+                                '音声入力',
+                                style: Theme.of(context).textTheme.bodySmall
+                                    ?.copyWith(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 11,
+                                    ),
+                              ),
+                            ],
+                          ),
                         ),
                       ],
                     ),
                   ],
-                ),
-              ),
-              // アップグレードボタン
-              Positioned(
-                top: 16,
-                right: 16,
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.1),
-                        blurRadius: 10,
-                      ),
-                    ],
-                  ),
-                  child: IconButton(
-                    icon: const Icon(Icons.upgrade, color: Color(0xFF3B82F6)),
-                    onPressed: () {
-                      // TODO: アップグレード機能
-                    },
-                  ),
                 ),
               ),
             ],
