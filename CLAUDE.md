@@ -8,6 +8,19 @@ DiaryQuest (ダイクエ) is a **Flutter-based gamified journaling app** that tr
 
 **Language Note**: Requirements and UI strings are in Japanese, but code is in English.
 
+## Design Documents
+
+Project design documents are located in the `docs/` directory. Always refer to these `.md` files when implementing features or making architectural decisions:
+
+- `docs/OVERVIEW.md` - Project overview and high-level concepts
+- `docs/ARCHITECTURE.md` - System architecture and technical design
+- `docs/FEATURES.md` - Feature specifications
+- `docs/UI_DESIGN.md` - UI/UX design guidelines
+- `docs/DATA_MODELS.md` - Data models and schemas
+- `docs/API.md` - API specifications
+
+**Before implementing any feature, read the relevant design documents in `docs/` to understand the requirements and constraints.**
+
 ## Build and Development Commands
 
 ```bash

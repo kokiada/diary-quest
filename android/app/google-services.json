@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "142521310459",
+    "project_id": "diaryquest-900b2",
+    "storage_bucket": "diaryquest-900b2.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:142521310459:android:0000000000000000",
+        "android_client_info": {
+          "package_name": "jp.kokiada.diaryquest"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCZhT91b15XNAq5sqo4c7vMr0Axsr2Da2A"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
